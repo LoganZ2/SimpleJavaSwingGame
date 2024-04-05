@@ -88,8 +88,4 @@ public class Plane extends Movable{
         }
         return false;
     }
-
-
-
-
 }

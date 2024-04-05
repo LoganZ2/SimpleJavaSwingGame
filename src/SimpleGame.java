@@ -1,5 +1,6 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import java.awt.*;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -47,6 +48,9 @@ public class SimpleGame extends JFrame {
         int[] yP2 = {0, 20, 20};
         private ArrayList<Movable> movableList = new ArrayList<>();
         private HashMap<Movable, LinkedList<Bullet>> bulletList = new HashMap<>();
+        private LinkedList<Bullet> tempList = new LinkedList<>();
+
+
         public void register(Plane plane, int[] xPoints, int[] yPoints, int nPoints) {
             plane.setShape(xPoints, yPoints, nPoints);
             bulletList.put(plane, new LinkedList<Bullet>());
@@ -55,7 +59,6 @@ public class SimpleGame extends JFrame {
         public void register(Plane plane, int[] xPoints, int[] yPoints, int nPoints, int initialPositionX, int initialPositionY) {
             plane.setShape(xPoints, yPoints, nPoints);
             bulletList.put(plane, new LinkedList<Bullet>());
-
             movableList.add(plane);
             Movable.setPosition(plane, initialPositionX, initialPositionY);
         }
@@ -134,6 +137,19 @@ public class SimpleGame extends JFrame {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+
+            // 定义渐变的起始颜色和结束颜色
+            Color startColor = Color.WHITE;
+            Color endColor = Color.GRAY;
+
+            // 创建一个从左上角(0, 0)到右下角(宽度, 高度)的线性渐变
+            GradientPaint gradient = new GradientPaint(getWidth()/2, 0, startColor, getWidth()/2, getHeight(), endColor);
+
+            // 设置Graphics2D上下文的Paint属性为我们的渐变
+            g2d.setPaint(gradient);
+            g.fillRect(0, 0, getWidth(), getHeight());
+            g2d.setPaint(new GradientPaint(getWidth()/2, 0, Color.GREEN, getWidth()/2, getHeight(), Color.CYAN));
             for (Movable m : movableList) {
                 g.fillPolygon(m.getShape());
 //                g.drawRect(m.getX(),m.getY(),m.getWidth(),m.getHeight());
@@ -141,8 +157,10 @@ public class SimpleGame extends JFrame {
         }
 
         private void update() {
+
             ArrayList<Plane> planeList = movableList.stream().filter(m -> m instanceof Plane).map(m -> (Plane)m).collect(Collectors.toCollection(ArrayList::new));
             for (Plane plane : planeList) {
+                tempList = bulletList.get(plane);
                 plane.collision(movableList);
                 if (plane.getBounceCount() > 0){
                     plane.bounce(getHeight(), getWidth());
@@ -151,17 +169,15 @@ public class SimpleGame extends JFrame {
                     playerMove();
                     enemyMove();
                 }
+                bulletList.put(plane, tempList);
             }
-            ArrayList<Bullet> bulletsCopy = new ArrayList<>();
-            if (bulletList.get(plane1) != null) {
-                bulletsCopy = new ArrayList<>(bulletList.get(plane1));
-            }
-            for (Bullet bullet: bulletsCopy) {
+
+            for (Bullet bullet : bulletList.get(plane1)) {
                 Bullet toRemove = bullet.up(STEP*2, getHeight(), getWidth());
                 bulletList.replace(plane1, bulletList.get(plane1).stream().filter(x -> x != toRemove).collect(Collectors.toCollection(LinkedList::new)));
                 movableList = movableList.stream().filter(x -> x != toRemove).collect(Collectors.toCollection(ArrayList::new));
             }
-            for (Bullet bullet: bulletsCopy) {
+            for (Bullet bullet: bulletList.get(plane1)) {
                 Bullet toRemove;
                 if (bullet.collision(movableList)) {
                     toRemove = bullet;
@@ -170,6 +186,8 @@ public class SimpleGame extends JFrame {
                 }
 
             }
+
+
         }
 
         private void startGameLoop() {

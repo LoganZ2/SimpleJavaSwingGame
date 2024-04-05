@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import lombok.Data;
 @Data
 
-public abstract class Movable {
+public class Movable {
     private int x;
     private int y;
     private int width;
