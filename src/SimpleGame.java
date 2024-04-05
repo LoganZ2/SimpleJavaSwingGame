@@ -139,14 +139,11 @@ public class SimpleGame extends JFrame {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
 
-            // 定义渐变的起始颜色和结束颜色
             Color startColor = Color.WHITE;
             Color endColor = Color.GRAY;
 
-            // 创建一个从左上角(0, 0)到右下角(宽度, 高度)的线性渐变
             GradientPaint gradient = new GradientPaint(getWidth()/2, 0, startColor, getWidth()/2, getHeight(), endColor);
 
-            // 设置Graphics2D上下文的Paint属性为我们的渐变
             g2d.setPaint(gradient);
             g.fillRect(0, 0, getWidth(), getHeight());
             g2d.setPaint(new GradientPaint(getWidth()/2, 0, Color.GREEN, getWidth()/2, getHeight(), Color.CYAN));
@@ -184,10 +181,7 @@ public class SimpleGame extends JFrame {
                     bulletList.replace(plane1, bulletList.get(plane1).stream().filter(x -> x != toRemove).collect(Collectors.toCollection(LinkedList::new)));
                     movableList = movableList.stream().filter(x -> x != toRemove).collect(Collectors.toCollection(ArrayList::new));
                 }
-
             }
-
-
         }
 
         private void startGameLoop() {
